@@ -50,35 +50,14 @@ boolean GAS_RELEASED = true;
 
 
 //______________FOR SMOOTHING SPD
-const int numReadings = 160;
-float readings[numReadings];
+const int numReadings = 160; 
+float readings[numReadings]; //The code sequentially stores 160 readings from sensor into an arrays, one by one. With each new value, the sum of all the numbers is generated and divided, producing an average value which then be used to smooth outlying data.
 int readIndex = 0; 
 double total = 0;
 
 
-/*
-//______________FOR READING VSS SENSOR
-const byte interruptPin = 3;
-int inc = 0;
-int half_revolutions = 0;
-int spd;
-unsigned long lastmillis;
-unsigned long duration;
-uint8_t encoder = 0;
-*/
 
-/*
-void rpm() {
-  half_revolutions++;
-  if (encoder > 255)
-  {
-    encoder = 0;
-  }
-  encoder++;
-}
-*/
-
-//TOYOTA CAN CHECKSUM
+//______________TOYOTA CAN CHECKSUM
 int can_cksum (uint8_t *dat, uint8_t len, uint16_t addr) {
   uint8_t checksum = 0;
   checksum = ((addr & 0xFF00) >> 8) + (addr & 0x00FF) + len + 1;
@@ -104,17 +83,17 @@ pinMode(BlinkerPinLeft, INPUT_PULLUP); //左轉向燈
 pinMode(BlinkerPinRight, INPUT_PULLUP); //右轉向燈
 
 
-/*
+
 //______________initialize smoothing inputs
   for (int thisReading = 0; thisReading < numReadings; thisReading++) {
     readings[thisReading] = 0;
   }
-*/  
+
 }
 
 void loop() {
 
-  //speed calculation
+  //_____________speed calculation
 
   Voltage = analogRead (VssPin);
   //Serial.println(Voltage);
@@ -122,19 +101,7 @@ void loop() {
   //Serial.println(spd);
   //average = spd; Use smooth script
 
-/*  
-//______________READ SPD SENSOR
-attachInterrupt(1,rpm, FALLING);
 
-if (half_revolutions >= 1) {
-    detachInterrupt(1);
-    duration = (micros() - lastmillis);
-    spd = half_revolutions * (0.000135 / (duration * 0.000001)) * 3600;
-    lastmillis = micros(); 
-    half_revolutions = 0;
-    attachInterrupt(1, rpm, FALLING);
-  }
-*/
 
 //______________SMOOTH SPD TO AVERAGE
   total = total - readings[readIndex];
@@ -152,7 +119,7 @@ if (half_revolutions >= 1) {
   }
 
   // calculate the average:
-  average = total / numReadings*3/40;
+  average = total / numReadings;
   // send it to the computer as ASCII digits
   
 
