@@ -13,8 +13,7 @@ int button4 = 8; // Cruise Main
 int button3 = 7; // +
 int button2 = 6; // -
 int button1 = 9; // Set
-//int CluchSwitch = A4;
-//boolean ClutchSwitchState = false; //消滅這個
+
 int buttonstate4;
 int lastbuttonstate4;
 int buttonstate3;
@@ -28,7 +27,7 @@ boolean lastBRAKE_PRESSED = false; //消滅這個
 
 //VSS signal
 unsigned char VssPin = A4; //voltage reading from A4
-int Voltage; //analog.read the voltage
+int Voltage; //analog.read the voltage from vehicle VSS voltage sensor
 float spd;
 float a = 0.000088; //Curve fitting of spd = a * Voltage * Voltage + b * Voltage + c;
 float b = 0.066; //Curve fitting of spd = a * Voltage * Voltage + b * Voltage + c;
@@ -56,7 +55,6 @@ int readIndex = 0;
 double total = 0;
 
 
-
 //______________TOYOTA CAN CHECKSUM
 int can_cksum (uint8_t *dat, uint8_t len, uint16_t addr) {
   uint8_t checksum = 0;
@@ -73,16 +71,12 @@ void setup() {
 //Serial.begin(9600);
 CAN.begin(500E3);
 
-//pinMode(interruptPin, INPUT_PULLUP); //VSS速度讀取
-//attachInterrupt(digitalPinToInterrupt(interruptPin), rpm, FALLING);
 pinMode(button1, INPUT);//
 pinMode(button2, INPUT);
 pinMode(button3, INPUT);
 pinMode(button4, INPUT);
 pinMode(BlinkerPinLeft, INPUT_PULLUP); //左轉向燈
 pinMode(BlinkerPinRight, INPUT_PULLUP); //右轉向燈
-
-
 
 //______________initialize smoothing inputs
   for (int thisReading = 0; thisReading < numReadings; thisReading++) {
@@ -94,16 +88,12 @@ pinMode(BlinkerPinRight, INPUT_PULLUP); //右轉向燈
 void loop() {
 
   //_____________speed calculation
-
   Voltage = analogRead (VssPin);
   //Serial.println(Voltage);
   spd = 1.609 *(a*Voltage*Voltage+b*Voltage);
   //Serial.println(spd);
-  //average = spd; Use smooth script
-
-
-
-//______________SMOOTH SPD TO AVERAGE
+  
+  //______________SMOOTH SPD TO AVERAGE
   total = total - readings[readIndex];
   // read from the sensor:
   readings[readIndex] = spd;
@@ -120,11 +110,11 @@ void loop() {
 
   // calculate the average:
   average = total / numReadings;
-  // send it to the computer as ASCII digits
+  
   
 
 //______________READING BUTTONS AND SWITCHES // Clutch 讓它一直關閉
-//ClutchSwitchState = false;//digitalRead(CluchSwitch);
+
 buttonstate4 = digitalRead(button4);
 buttonstate3 = digitalRead(button3);
 buttonstate2 = digitalRead(button2);
@@ -210,14 +200,7 @@ if (buttonstate1 != lastbuttonstate1)
    }
 
 
-//______________SET CLUTCH SWITCH
 
- /*
-  if (ClutchSwitchState == LOW)
-   {
-  //  ("Clutch Pedal is pressed");
-   }
- */
 
 lastbuttonstate1 = buttonstate1;
 lastbuttonstate2 = buttonstate2;
